@@ -16,26 +16,58 @@ import { useState } from 'react';
 export function UploadBtn() {
   const [files, setFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<(string | null)[]>([]);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  // Define supported formats and maximum file size
+  const SUPPORTED_FORMATS = [
+    'image/png',
+    'image/jpeg',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ]; // .pdf, .png, .jpg, .xlsx
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const uploadedFiles = Array.from(event.target.files);
-      const newFiles = mergeFiles(files, uploadedFiles);
-      setFiles(newFiles);
-      generateFilePreviews(newFiles);
+      processFiles(uploadedFiles);
     }
   };
 
   const handleDrop = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
     const droppedFiles = Array.from(event.dataTransfer.files);
-    const newFiles = mergeFiles(files, droppedFiles);
-    setFiles(newFiles);
-    generateFilePreviews(newFiles);
+    processFiles(droppedFiles);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
+  };
+
+  const processFiles = (newFiles: File[]) => {
+    const validFiles: File[] = [];
+    const errorMsgs: string[] = [];
+
+    newFiles.forEach((file) => {
+      if (!SUPPORTED_FORMATS.includes(file.type)) {
+        errorMsgs.push(`Unsupported format: ${file.name}`);
+      } else if (file.size > MAX_FILE_SIZE) {
+        errorMsgs.push(`File too large (max 5MB): ${file.name}`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    const mergedFiles = mergeFiles(files, validFiles);
+    setFiles(mergedFiles);
+    generateFilePreviews(mergedFiles);
+
+    // Clear error messages if valid files are uploaded
+    if (mergedFiles.length > 0) {
+      setErrorMessages([]);
+    } else {
+      setErrorMessages(errorMsgs);
+    }
   };
 
   const mergeFiles = (currentFiles: File[], newFiles: File[]) => {
@@ -107,6 +139,15 @@ export function UploadBtn() {
             onChange={handleFileUpload}
           />
         </label>
+        {errorMessages.length > 0 && files.length === 0 && (
+          <div className="mt-4 text-red-500">
+            {errorMessages.map((msg, index) => (
+              <p key={index} className="text-sm">
+                {msg}
+              </p>
+            ))}
+          </div>
+        )}
         {files.length > 0 && (
           <div className="mt-4">
             <p className="font-semibold">Selected Files:</p>
