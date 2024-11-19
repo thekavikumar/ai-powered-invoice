@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { FileUp, X } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 export function UploadBtn() {
@@ -113,10 +114,12 @@ export function UploadBtn() {
               {files.map((file, index) => (
                 <li key={index} className="flex items-center gap-2">
                   {filePreviews[index] ? (
-                    <img
+                    <Image
                       src={filePreviews[index]!}
                       alt={file.name}
-                      className="w-12 h-12 object-cover rounded"
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 object-cover rounded"
                     />
                   ) : (
                     <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded">
