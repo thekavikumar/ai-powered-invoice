@@ -9,6 +9,7 @@ const roboto = Roboto({
 });
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+import ReduxWrapper from '@/components/ReduxWrapper';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -22,10 +23,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={roboto.className}>
-        {children}
-        <Toaster />
-      </body>
+      <ReduxWrapper>
+        <body className={roboto.className}>
+          {children}
+          <Toaster />
+        </body>
+      </ReduxWrapper>
     </html>
   );
 }

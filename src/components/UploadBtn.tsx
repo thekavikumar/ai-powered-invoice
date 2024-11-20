@@ -9,6 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { addInvoice } from '@/redux/slices/invoicesSlice';
+import { store } from '@/redux/store';
 import { FileUp, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -103,6 +105,95 @@ export function UploadBtn() {
     setFilePreviews(newPreviews);
   };
 
+  const uploadFiles = async () => {
+    if (files.length === 0) {
+      console.error('No files to upload.');
+      return;
+    }
+
+    const filePromises = files.map(
+      (file) =>
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        })
+    );
+
+    const base64Files = await Promise.all(filePromises);
+
+    for (const base64File of base64Files) {
+      const response = await fetch('/api/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: base64File.split(',')[1] }), // Strip the data prefix
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        // console.log('Extracted Data:', result.data);
+        const responseData = result.data;
+        const cleanedData = responseData.replace(/^```json|```$/g, '').trim();
+        // console.log('Cleaned Data:', cleanedData);
+        try {
+          const jsonData = JSON.parse(cleanedData);
+          console.log('Parsed JSON Data:', jsonData);
+
+          // Assuming response data is already parsed as `jsonData`
+          const invoiceDetails = {
+            invoiceInformation: {
+              consignee: jsonData.invoiceInformation.consignee,
+              gstin: jsonData.invoiceInformation.gstin,
+              invoiceNumber: jsonData.invoiceInformation.invoiceNumber,
+              invoiceDate: jsonData.invoiceInformation.invoiceDate,
+              placeOfSupply: jsonData.invoiceInformation.placeOfSupply,
+              companyName: jsonData.invoiceInformation.companyName,
+              companyGSTIN: jsonData.invoiceInformation.companyGSTIN,
+              companyPhone: jsonData.invoiceInformation.companyPhone,
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            items: jsonData.items.map((item: any) => ({
+              description: item.description,
+              rate: item.rate,
+              quantity: item.quantity,
+              taxableValue: item.taxableValue,
+              gst: item.gst,
+              amount: item.amount,
+            })),
+            chargesAndTotals: {
+              makingCharges: jsonData.chargesAndTotals.makingCharges,
+              debitCardCharges: jsonData.chargesAndTotals.debitCardCharges,
+              shippingCharges: jsonData.chargesAndTotals.shippingCharges,
+              taxableAmount: jsonData.chargesAndTotals.taxableAmount,
+              cgst: jsonData.chargesAndTotals.cgst,
+              sgst: jsonData.chargesAndTotals.sgst,
+              total: jsonData.chargesAndTotals.total,
+              amountPayable: jsonData.chargesAndTotals.amountPayable,
+              totalAmountDue: jsonData.chargesAndTotals.totalAmountDue,
+              totalItemsQty: jsonData.chargesAndTotals.totalItemsQty,
+            },
+            bankDetails: {
+              bankName: jsonData.bankDetails.bankName,
+              accountNumber: jsonData.bankDetails.accountNumber,
+              ifscCode: jsonData.bankDetails.ifscCode,
+              branch: jsonData.bankDetails.branch,
+              beneficiaryName: jsonData.bankDetails.beneficiaryName,
+            },
+            additionalNotes: jsonData.additionalNotes,
+          };
+
+          // Dispatch the action to store the full invoice details
+          store.dispatch(addInvoice(invoiceDetails));
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+        }
+      } else {
+        console.error('File upload failed:', result.message);
+      }
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -185,7 +276,7 @@ export function UploadBtn() {
           <Button
             onClick={() => {
               console.log('Files to upload:', files);
-              // Trigger upload logic here
+              uploadFiles();
             }}
           >
             Upload Files
