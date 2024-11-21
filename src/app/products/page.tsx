@@ -42,14 +42,33 @@ const Page: React.FC = () => {
   };
 
   if (!invoices || invoices.length === 0) {
-    return <div className="text-xl text-gray-600">No invoices available</div>;
+    return (
+      <div className="p-8 bg-gray-50 min-h-screen">
+        <div className="flex flex-col items-center justify-between w-full">
+          <h3 className="text-2xl font-semibold text-gray-700 mb-6">
+            No Products Available
+          </h3>
+          <Link
+            href={'/'}
+            className="px-3 py-1 border rounded-md bg-slate-200 hover:bg-slate-300 duration-200 ease-in-out"
+          >
+            Go back
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center justify-between w-full">
         <h3 className="text-3xl font-semibold mb-6">Product List</h3>
-        <Link href={'/'}>Go back</Link>
+        <Link
+          href={'/'}
+          className="px-3 py-1 border rounded-md bg-slate-200 hover:bg-slate-300 duration-200 ease-in-out"
+        >
+          Go back
+        </Link>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">

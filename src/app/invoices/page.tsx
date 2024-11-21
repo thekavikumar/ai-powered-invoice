@@ -48,7 +48,12 @@ export default function Page() {
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center justify-between w-full">
         <h2 className="text-3xl font-semibold mb-6">Invoice List</h2>
-        <Link href="/">Go back</Link>
+        <Link
+          href={'/'}
+          className="px-3 py-1 border rounded-md bg-slate-200 hover:bg-slate-300 duration-200 ease-in-out"
+        >
+          Go back
+        </Link>
       </div>
       {invoiceData?.length === 0 ? (
         <p className="text-xl text-gray-600">No invoices available.</p>
