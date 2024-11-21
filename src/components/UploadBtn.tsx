@@ -22,7 +22,6 @@ export function UploadBtn() {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  
 
   // Define supported formats and maximum file size
   const SUPPORTED_FORMATS = [
@@ -150,10 +149,16 @@ export function UploadBtn() {
             store.dispatch(addInvoice(invoice));
           });
 
+          toast.success('Files uploaded successfully!');
+          setDialogOpen(false); // Close the dialog
+
           // store.dispatch(addInvoice(formattedData));
           // Handle the response, store the invoice data, etc.
         } else {
           console.error('File upload failed:', result.message);
+          toast.error('File upload failed. Please try again.');
+          setLoading(false);
+          setDialogOpen(false); // Close the dialog
           return;
         }
       } else {
