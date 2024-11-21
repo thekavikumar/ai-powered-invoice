@@ -2,6 +2,8 @@
 
 This React-based web application automates the extraction, processing, and management of invoice data from various file formats. It uses AI-powered tools to extract relevant details and organizes them into three key sections: **Invoices**, **Products**, and **Customers**. Real-time synchronization across tabs is achieved using Redux for centralized state management.
 
+![Banner](<https://storage.googleapis.com/example-offi-1/Safari%20(Big%20Sur)%20-%20Light.png>)
+
 ---
 
 ## Features
