@@ -8,7 +8,7 @@ export default function Home() {
       <h1 className="text-4xl font-extrabold text-gray-700 text-center max-w-xl">
         AI Powered Data Extraction And Invoice Management Application
       </h1>
-      <div className="flex items-center gap-6">
+      <div className="flex flex-wrap justify-center items-center gap-6">
         <UploadBtn />
         <CustomLink href="/invoices">
           <Receipt size={20} />

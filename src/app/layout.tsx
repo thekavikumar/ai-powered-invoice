@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <ReduxWrapper>
-        <body className={roboto.className}>
+        <body className={roboto.className} suppressHydrationWarning>
           {children}
           <Toaster />
         </body>

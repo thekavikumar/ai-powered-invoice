@@ -9,9 +9,17 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     // Validate file input
-    if (!body.file) {
+    if (!body.file || !body.mimeType) {
       return NextResponse.json(
-        { success: false, message: 'No file provided' },
+        { success: false, message: 'No file or mimeType provided' },
+        { status: 400 }
+      );
+    }
+
+    const mimeType = body.mimeType.toLowerCase();
+    if (!['application/pdf', 'image/png', 'image/jpeg'].includes(mimeType)) {
+      return NextResponse.json(
+        { success: false, message: 'Unsupported file type' },
         { status: 400 }
       );
     }
@@ -26,7 +34,8 @@ export async function POST(req: Request) {
     });
 
     // Store the base64-encoded file temporarily
-    const tmpFilePath = path.join(__dirname, 'tempfile.pdf');
+    const extension = mimeType.split('/')[1];
+    const tmpFilePath = path.join(__dirname, `tempfile.${extension}`);
     const fileBuffer = Buffer.from(body.file, 'base64');
 
     // Write the buffer to a temporary file
@@ -34,15 +43,15 @@ export async function POST(req: Request) {
 
     // Upload the file from the temporary file
     const uploadResponse = await fileManager.uploadFile(tmpFilePath, {
-      mimeType: 'application/pdf', // Assuming PDF format
-      displayName: 'Uploaded Document', // Customize name
+      mimeType, // Pass the correct mimeType
+      displayName: `Uploaded Document.${extension}`, // Customize name
     });
 
     console.log(
       `Uploaded file: ${uploadResponse.file.displayName} as: ${uploadResponse.file.uri}`
     );
 
-    // Extract the table data from the document
+    // Extract data from the document or image
     const tableExtraction = await model.generateContent([
       {
         fileData: {
@@ -51,7 +60,7 @@ export async function POST(req: Request) {
         },
       },
       {
-        text: `Please extract all relevant information from the document and provide it in the following structured format:
+        text: `Please extract all relevant information from the document or image and provide it in the following structured format:
 
     {
       "invoiceInformation": {
@@ -102,7 +111,6 @@ export async function POST(req: Request) {
     ]);
 
     const extractedData = tableExtraction.response.text();
-    // console.log('Extracted Data:', extractedData);
 
     // Return success
     return NextResponse.json({
