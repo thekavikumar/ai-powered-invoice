@@ -150,6 +150,7 @@ export function UploadBtn() {
           });
 
           toast.success('Files uploaded successfully!');
+          setFiles([]); // Clear the files
           setDialogOpen(false); // Close the dialog
 
           // store.dispatch(addInvoice(formattedData));
@@ -158,6 +159,7 @@ export function UploadBtn() {
           console.error('File upload failed:', result.message);
           toast.error('File upload failed. Please try again.');
           setLoading(false);
+          setFiles([]); // Clear the files
           setDialogOpen(false); // Close the dialog
           return;
         }
@@ -227,6 +229,7 @@ export function UploadBtn() {
             // Dispatch the action to store the full invoice details
             store.dispatch(addInvoice(invoiceDetails));
             toast.success('Files uploaded successfully!');
+            setFiles([]); // Clear the files
             setDialogOpen(false); // Close the dialog
           } catch (error) {
             console.error('Error parsing JSON:', error);
@@ -234,6 +237,7 @@ export function UploadBtn() {
         } else {
           console.error('File upload failed:', result.message);
           toast.error('File upload failed. Please try again.');
+          setLoading(false);
         }
       }
     }
