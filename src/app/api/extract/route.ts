@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
     // Store the base64-encoded file temporarily
     const extension = mimeType.split('/')[1];
-    const tmpFilePath = path.join(__dirname, `tempfile.${extension}`);
+    const tmpFilePath = path.join('/tmp', `file.${extension}`);
     const fileBuffer = Buffer.from(body.file, 'base64');
 
     // Write the buffer to a temporary file
