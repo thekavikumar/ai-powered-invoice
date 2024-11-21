@@ -14,12 +14,14 @@ import { store } from '@/redux/store';
 import { FileUp, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export function UploadBtn() {
   const [files, setFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<(string | null)[]>([]);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Define supported formats and maximum file size
   const SUPPORTED_FORMATS = [
@@ -218,11 +220,14 @@ export function UploadBtn() {
 
             // Dispatch the action to store the full invoice details
             store.dispatch(addInvoice(invoiceDetails));
+            toast.success('Files uploaded successfully!');
+            setDialogOpen(false); // Close the dialog
           } catch (error) {
             console.error('Error parsing JSON:', error);
           }
         } else {
           console.error('File upload failed:', result.message);
+          toast.error('File upload failed. Please try again.');
         }
       }
     }
@@ -230,7 +235,7 @@ export function UploadBtn() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <button className="px-4 font-medium text-gray-600 py-2 border shadow-sm border-gray-800 hover:shadow-md hover:scale-105 duration-200 rounded-full text-sm flex items-center gap-2">
           <FileUp size={20} />
@@ -313,6 +318,7 @@ export function UploadBtn() {
         )}
         <DialogFooter>
           <Button
+            disabled={loading || files.length === 0}
             onClick={() => {
               console.log('Files to upload:', files);
               uploadFiles();

@@ -1,5 +1,6 @@
 'use client';
 import { RootState } from '@/redux/store';
+import Link from 'next/link';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
@@ -60,7 +61,10 @@ export default function CustomersPage() {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-semibold mb-6">Customers List</h1>
+      <div className="flex items-center justify-between w-full">
+        <h1 className="text-3xl font-semibold mb-6">Customers List</h1>
+        <Link href={'/'}>Go back</Link>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
           <thead className="bg-gray-800 text-white">

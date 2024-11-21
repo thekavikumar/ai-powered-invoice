@@ -3,6 +3,7 @@ import { RootState, store } from '@/redux/store';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { updateInvoice } from '@/redux/slices/invoicesSlice';
+import Link from 'next/link';
 
 const Page: React.FC = () => {
   // Select all invoice data from the Redux store
@@ -46,7 +47,10 @@ const Page: React.FC = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h3 className="text-3xl font-semibold mb-6">Product List</h3>
+      <div className="flex items-center justify-between w-full">
+        <h3 className="text-3xl font-semibold mb-6">Product List</h3>
+        <Link href={'/'}>Go back</Link>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
           <thead className="bg-gray-800 text-white">

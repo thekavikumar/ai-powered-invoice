@@ -2,6 +2,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/redux/store'; // assuming you have an action to update the invoice
 import { updateInvoice } from '@/redux/slices/invoicesSlice';
+import Link from 'next/link';
 
 export default function Page() {
   // Retrieve invoice data from the Redux store
@@ -45,7 +46,10 @@ export default function Page() {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-semibold mb-6">Invoice List</h2>
+      <div className="flex items-center justify-between w-full">
+        <h2 className="text-3xl font-semibold mb-6">Invoice List</h2>
+        <Link href="/">Go back</Link>
+      </div>
       {invoiceData?.length === 0 ? (
         <p className="text-xl text-gray-600">No invoices available.</p>
       ) : (
