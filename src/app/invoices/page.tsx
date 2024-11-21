@@ -46,8 +46,8 @@ export default function Page() {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <div className="flex items-center justify-between w-full">
-        <h2 className="text-3xl font-semibold mb-6">Invoice List</h2>
+      <div className="flex items-center mb-6 gap-5 w-full">
+        <h2 className="text-3xl font-semibold">Invoice List</h2>
         <Link
           href={'/'}
           className="px-3 py-1 border rounded-md bg-slate-200 hover:bg-slate-300 duration-200 ease-in-out"
