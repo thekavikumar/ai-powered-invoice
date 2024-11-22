@@ -35,9 +35,9 @@ interface BankDetails {
 interface InvoiceData {
   invoiceInformation?: {
     consignee?: string;
+    consigneePhone?: string;
     gstin?: string;
     invoiceNumber?: string;
-    consigneePhone?: string;
     invoiceDate?: string;
     placeOfSupply?: string;
     companyName?: string;
@@ -63,7 +63,7 @@ const invoicesSlice = createSlice({
   initialState,
   reducers: {
     addInvoice: (state, action: PayloadAction<InvoiceData>) => {
-      state.invoiceData?.push(action.payload); // Add the new invoice to the list
+      state.invoiceData = [...(state.invoiceData || []), action.payload];
     },
     updateInvoice: (
       state,
@@ -75,13 +75,36 @@ const invoicesSlice = createSlice({
       }>
     ) => {
       const { invoiceIndex, itemIndex, field, value } = action.payload;
-
       const invoice = state.invoiceData?.[invoiceIndex];
-      const item = invoice?.items?.[itemIndex];
 
-      if (invoice && item) {
-        // Update the specific field for the item
-        item[field] = value;
+      if (invoice) {
+        if (itemIndex !== -1) {
+          const item = invoice.items?.[itemIndex];
+          if (item) {
+            item[field] = value;
+          }
+        } else {
+          // For updating invoice-level fields
+          if (
+            invoice.invoiceInformation &&
+            field in invoice.invoiceInformation
+          ) {
+            invoice.invoiceInformation = {
+              ...invoice.invoiceInformation,
+              [field]: value,
+            };
+          } else if (invoice.bankDetails && field in invoice.bankDetails) {
+            invoice.bankDetails = {
+              ...invoice.bankDetails,
+              [field]: value,
+            };
+          } else {
+            invoice.invoiceInformation = {
+              ...invoice.invoiceInformation,
+              [field]: value,
+            };
+          }
+        }
       }
     },
   },

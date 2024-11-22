@@ -1,14 +1,15 @@
 'use client';
+import { updateInvoice } from '@/redux/slices/invoicesSlice';
 import { RootState } from '@/redux/store';
 import Link from 'next/link';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function CustomersPage() {
-  // Select invoice data from the Redux store
   const invoices = useSelector(
     (state: RootState) => state.invoices.invoiceData
   );
+  const dispatch = useDispatch();
 
   if (!invoices || invoices.length === 0) {
     return (
@@ -28,14 +29,34 @@ export default function CustomersPage() {
     );
   }
 
-  // Group by unique customer (name + phone) and calculate total purchase amount
-  const groupedData = invoices.reduce((acc, invoice) => {
-    const name = invoice.invoiceInformation?.consignee || 'Not Mentioned';
-    const phone = invoice.invoiceInformation?.consigneePhone || 'Not Mentioned';
-    const uniqueKey = `${name}-${phone}`; // Combine name and phone as a unique key
-    const amountString = invoice.chargesAndTotals?.total || '0';
-    // check if the amount is a string and remove any currency symbols or commas
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    invoiceIndex: number,
+    field: string
+  ) => {
+    let updatedValue = e.target.value;
 
+    // Special handling for fields like totalPurchaseAmount (removing commas)
+    if (field === 'totalPurchaseAmount') {
+      updatedValue = updatedValue.replace(/,/g, ''); // Remove commas if necessary
+    }
+
+    dispatch(
+      updateInvoice({
+        invoiceIndex,
+        itemIndex: -1, // Not updating items, just customer-level fields
+        field,
+        value: updatedValue,
+      })
+    );
+  };
+
+  const groupedData = invoices.reduce((acc, invoice, invoiceIndex) => {
+    const name = invoice.invoiceInformation?.consignee || 'Not Mentioned';
+    const consigneePhone =
+      invoice.invoiceInformation?.consigneePhone || 'Not Mentioned';
+    const uniqueKey = `${name}-${consigneePhone}`;
+    const amountString = invoice.chargesAndTotals?.total || '0';
     const cleanedAmount =
       typeof amountString === 'string'
         ? amountString.replace(/[^0-9.]/g, '')
@@ -45,22 +66,23 @@ export default function CustomersPage() {
     if (!acc[uniqueKey]) {
       acc[uniqueKey] = {
         name,
-        phone,
+        consigneePhone,
         totalPurchaseAmount: 0,
+        bankDetails: invoice.bankDetails || {},
+        invoiceIndex, // Store the invoice index here
       };
     }
 
     acc[uniqueKey].totalPurchaseAmount += amount;
 
     return acc;
-  }, {} as Record<string, { name: string; phone: string; totalPurchaseAmount: number }>);
+  }, {} as Record<string, { name: string; consigneePhone: string; totalPurchaseAmount: number; bankDetails: any; invoiceIndex: number }>);
 
-  // Handle cases where "Unknown" entries exist but still preserve them correctly
   const customers = Object.values(groupedData).map((customer) => {
-    // If there are multiple invoices with the same phone but different names
     const hasDuplicatePhone =
-      Object.values(groupedData).filter((c) => c.phone === customer.phone)
-        .length > 1;
+      Object.values(groupedData).filter(
+        (c) => c.consigneePhone === customer.consigneePhone
+      ).length > 1;
 
     return {
       ...customer,
@@ -89,6 +111,9 @@ export default function CustomersPage() {
               <th className="px-6 py-4 text-left">Customer Name</th>
               <th className="px-6 py-4 text-left">Phone Number</th>
               <th className="px-6 py-4 text-left">Total Purchase Amount</th>
+              <th className="px-6 py-4 text-left">Bank Name</th>
+              <th className="px-6 py-4 text-left">Account Number</th>
+              <th className="px-6 py-4 text-left">IFSC Code</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -99,10 +124,91 @@ export default function CustomersPage() {
                     key={index}
                     className="hover:bg-gray-100 border-b last:border-b-0"
                   >
-                    <td className="px-6 py-4">{customer.name}</td>
-                    <td className="px-6 py-4">{customer.phone}</td>
                     <td className="px-6 py-4">
-                      ₹ {customer.totalPurchaseAmount.toFixed(2)}
+                      <input
+                        type="text"
+                        value={customer.name}
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'consignee'
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="text"
+                        value={customer.consigneePhone}
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'consigneePhone'
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="text"
+                        value={`₹ ${customer.totalPurchaseAmount.toFixed(2)}`}
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'totalPurchaseAmount'
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="text"
+                        value={customer.bankDetails?.bankName || 'Not Provided'}
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'bankName'
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="text"
+                        value={
+                          customer.bankDetails?.accountNumber || 'Not Provided'
+                        }
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'accountNumber'
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        type="text"
+                        value={customer.bankDetails?.ifscCode || 'Not Provided'}
+                        className="w-full border-gray-300 rounded-md p-2"
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            customer.invoiceIndex,
+                            'ifscCode'
+                          )
+                        }
+                      />
                     </td>
                   </tr>
                 )

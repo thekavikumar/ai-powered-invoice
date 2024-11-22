@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     {
       "invoiceInformation": {
         "consignee": "<Consignee Name>",
+        "consigneePhone": "<Consignee Phone>",
         "gstin": "<GSTIN Number>",
         "invoiceNumber": "<Invoice Number>",
         "invoiceDate": "<Invoice Date>",
