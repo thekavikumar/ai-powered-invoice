@@ -76,6 +76,7 @@ export default function CustomersPage() {
     acc[uniqueKey].totalPurchaseAmount += amount;
 
     return acc;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, {} as Record<string, { name: string; consigneePhone: string; totalPurchaseAmount: number; bankDetails: any; invoiceIndex: number }>);
 
   const customers = Object.values(groupedData).map((customer) => {
