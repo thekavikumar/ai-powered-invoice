@@ -45,6 +45,13 @@ This React-based web application automates the extraction, processing, and manag
 
 The app integrates AI-powered APIs (e.g., Google Gemini) to extract structured data from uploaded files.
 
+### **6. Bonus Data Fields**
+
+- **Bank Details**: Extracts bank information from invoices.
+- **Charges and Totals**: Displays additional charges and total amounts from invoices.
+- **Discounts**: Supports discounts for products in the **Products Tab**.
+- **Additional Customer Fields**: Supports additional fields for customers in the **Customers Tab**.
+
 ---
 
 ## Installation
