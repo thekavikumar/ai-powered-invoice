@@ -4,6 +4,10 @@ import { GoogleAIFileManager } from '@google/generative-ai/server';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export const config = {
+  runtime: "edge",
+};
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
