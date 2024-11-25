@@ -108,140 +108,247 @@ export function UploadBtn() {
     setFilePreviews(newPreviews);
   };
 
+  // const uploadFiles = async () => {
+  //   if (files.length === 0) {
+  //     console.error('No files to upload.');
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   const filePromises = files.map(
+  //     (file) =>
+  //       new Promise<string>((resolve, reject) => {
+  //         const reader = new FileReader();
+  //         reader.onload = () => resolve(reader.result as string);
+  //         reader.onerror = reject;
+  //         reader.readAsDataURL(file);
+  //       })
+  //   );
+
+  //   const base64Files = await Promise.all(filePromises);
+
+  //   for (const base64File of base64Files) {
+  //     if (
+  //       base64File.split(',')[0].split(':')[1].split(';')[0] ===
+  //       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  //     ) {
+  //       const response = await fetch('/api/processXlsx', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({
+  //           file: base64File.split(',')[1], // Remove base64 prefix
+  //         }),
+  //       });
+
+  //       const result = await response.json();
+  //       if (result.success) {
+  //         console.log('Response:', result.data);
+  //         const listOfInvoices = result.data;
+
+  //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //         listOfInvoices.forEach((invoice: any) => {
+  //           store.dispatch(addInvoice(invoice));
+  //         });
+
+  //         toast.success('Files uploaded successfully!');
+  //         setFiles([]); // Clear the files
+  //         setDialogOpen(false); // Close the dialog
+
+  //         // store.dispatch(addInvoice(formattedData));
+  //         // Handle the response, store the invoice data, etc.
+  //       } else {
+  //         console.error('File upload failed:', result.message);
+  //         toast.error('File upload failed. Please try again.');
+  //         setLoading(false);
+  //         setFiles([]); // Clear the files
+  //         setDialogOpen(false); // Close the dialog
+  //         return;
+  //       }
+  //     } else {
+  //       const response = await fetch('/api/extract', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({
+  //           file: base64File.split(',')[1],
+  //           mimeType: base64File.split(',')[0].split(':')[1].split(';')[0],
+  //         }), // Strip the data prefix
+  //       });
+
+  //       const result = await response.json();
+  //       if (result.success) {
+  //         console.log('Response:', result.data);
+  //         const responseData = result.data;
+  //         const cleanedData = responseData.replace(/^```json|```$/g, '').trim();
+  //         // console.log('Cleaned Data:', cleanedData);
+  //         try {
+  //           const jsonData = JSON.parse(cleanedData);
+  //           console.log('Parsed JSON Data:', jsonData);
+
+  //           // Assuming response data is already parsed as `jsonData`
+  //           const invoiceDetails = {
+  //             invoiceInformation: {
+  //               consignee: jsonData.invoiceInformation.consignee,
+  //               gstin: jsonData.invoiceInformation.gstin,
+  //               invoiceNumber: jsonData.invoiceInformation.invoiceNumber,
+  //               invoiceDate: jsonData.invoiceInformation.invoiceDate,
+  //               placeOfSupply: jsonData.invoiceInformation.placeOfSupply,
+  //               companyName: jsonData.invoiceInformation.companyName,
+  //               companyGSTIN: jsonData.invoiceInformation.companyGSTIN,
+  //               companyPhone: jsonData.invoiceInformation.companyPhone,
+  //             },
+  //             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //             items: jsonData.items.map((item: any) => ({
+  //               description: item.description,
+  //               rate: item.rate,
+  //               quantity: item.quantity,
+  //               taxableValue: item.taxableValue,
+  //               gst: item.gst,
+  //               amount: item.amount,
+  //             })),
+  //             chargesAndTotals: {
+  //               makingCharges: jsonData.chargesAndTotals.makingCharges,
+  //               debitCardCharges: jsonData.chargesAndTotals.debitCardCharges,
+  //               shippingCharges: jsonData.chargesAndTotals.shippingCharges,
+  //               taxableAmount: jsonData.chargesAndTotals.taxableAmount,
+  //               cgst: jsonData.chargesAndTotals.cgst,
+  //               sgst: jsonData.chargesAndTotals.sgst,
+  //               total: jsonData.chargesAndTotals.total,
+  //               amountPayable: jsonData.chargesAndTotals.amountPayable,
+  //               totalAmountDue: jsonData.chargesAndTotals.totalAmountDue,
+  //               totalItemsQty: jsonData.chargesAndTotals.totalItemsQty,
+  //             },
+  //             bankDetails: {
+  //               bankName: jsonData.bankDetails.bankName,
+  //               accountNumber: jsonData.bankDetails.accountNumber,
+  //               ifscCode: jsonData.bankDetails.ifscCode,
+  //               branch: jsonData.bankDetails.branch,
+  //               beneficiaryName: jsonData.bankDetails.beneficiaryName,
+  //             },
+  //             additionalNotes: jsonData.additionalNotes,
+  //           };
+
+  //           // Dispatch the action to store the full invoice details
+  //           store.dispatch(addInvoice(invoiceDetails));
+  //           toast.success('Files uploaded successfully!');
+  //           setFiles([]); // Clear the files
+  //           setDialogOpen(false); // Close the dialog
+  //         } catch (error) {
+  //           console.error('Error parsing JSON:', error);
+  //         }
+  //       } else {
+  //         console.error('File upload failed:', result.message);
+  //         toast.error('File upload failed. Please try again.');
+  //         setLoading(false);
+  //       }
+  //     }
+  //   }
+  //   setLoading(false);
+  // };
+
   const uploadFiles = async () => {
     if (files.length === 0) {
-      console.error('No files to upload.');
+      toast.error('No files to upload.');
       return;
     }
+
     setLoading(true);
-    const filePromises = files.map(
-      (file) =>
-        new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        })
-    );
 
-    const base64Files = await Promise.all(filePromises);
+    try {
+      // Convert files to base64 strings
+      const filePromises = files.map(
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () =>
+              reject(new Error(`Failed to read file: ${file.name}`));
+            reader.readAsDataURL(file);
+          })
+      );
 
-    for (const base64File of base64Files) {
-      if (
-        base64File.split(',')[0].split(':')[1].split(';')[0] ===
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ) {
-        const response = await fetch('/api/processXlsx', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: base64File.split(',')[1], // Remove base64 prefix
-          }),
-        });
+      const base64Files = await Promise.all(filePromises);
 
-        const result = await response.json();
-        if (result.success) {
-          console.log('Response:', result.data);
-          const listOfInvoices = result.data;
+      // Process each file
+      const uploadResults = await Promise.all(
+        base64Files.map(async (base64File) => {
+          const mimeType = base64File.split(',')[0].split(':')[1].split(';')[0];
+          const base64Data = base64File.split(',')[1]; // Remove the base64 prefix
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          listOfInvoices.forEach((invoice: any) => {
-            store.dispatch(addInvoice(invoice));
-          });
+          if (
+            mimeType ===
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          ) {
+            // Handle .xlsx files
+            const response = await fetch('/api/processXlsx', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file: base64Data }),
+            });
 
-          toast.success('Files uploaded successfully!');
-          setFiles([]); // Clear the files
-          setDialogOpen(false); // Close the dialog
+            const result = await response.json();
 
-          // store.dispatch(addInvoice(formattedData));
-          // Handle the response, store the invoice data, etc.
-        } else {
-          console.error('File upload failed:', result.message);
-          toast.error('File upload failed. Please try again.');
-          setLoading(false);
-          setFiles([]); // Clear the files
-          setDialogOpen(false); // Close the dialog
-          return;
-        }
-      } else {
-        const response = await fetch('/api/extract', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            file: base64File.split(',')[1],
-            mimeType: base64File.split(',')[0].split(':')[1].split(';')[0],
-          }), // Strip the data prefix
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          console.log('Response:', result.data);
-          const responseData = result.data;
-          const cleanedData = responseData.replace(/^```json|```$/g, '').trim();
-          // console.log('Cleaned Data:', cleanedData);
-          try {
-            const jsonData = JSON.parse(cleanedData);
-            console.log('Parsed JSON Data:', jsonData);
-
-            // Assuming response data is already parsed as `jsonData`
-            const invoiceDetails = {
-              invoiceInformation: {
-                consignee: jsonData.invoiceInformation.consignee,
-                gstin: jsonData.invoiceInformation.gstin,
-                invoiceNumber: jsonData.invoiceInformation.invoiceNumber,
-                invoiceDate: jsonData.invoiceInformation.invoiceDate,
-                placeOfSupply: jsonData.invoiceInformation.placeOfSupply,
-                companyName: jsonData.invoiceInformation.companyName,
-                companyGSTIN: jsonData.invoiceInformation.companyGSTIN,
-                companyPhone: jsonData.invoiceInformation.companyPhone,
-              },
+            if (result.success) {
+              const invoices = result.data;
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              items: jsonData.items.map((item: any) => ({
-                description: item.description,
-                rate: item.rate,
-                quantity: item.quantity,
-                taxableValue: item.taxableValue,
-                gst: item.gst,
-                amount: item.amount,
-              })),
-              chargesAndTotals: {
-                makingCharges: jsonData.chargesAndTotals.makingCharges,
-                debitCardCharges: jsonData.chargesAndTotals.debitCardCharges,
-                shippingCharges: jsonData.chargesAndTotals.shippingCharges,
-                taxableAmount: jsonData.chargesAndTotals.taxableAmount,
-                cgst: jsonData.chargesAndTotals.cgst,
-                sgst: jsonData.chargesAndTotals.sgst,
-                total: jsonData.chargesAndTotals.total,
-                amountPayable: jsonData.chargesAndTotals.amountPayable,
-                totalAmountDue: jsonData.chargesAndTotals.totalAmountDue,
-                totalItemsQty: jsonData.chargesAndTotals.totalItemsQty,
-              },
-              bankDetails: {
-                bankName: jsonData.bankDetails.bankName,
-                accountNumber: jsonData.bankDetails.accountNumber,
-                ifscCode: jsonData.bankDetails.ifscCode,
-                branch: jsonData.bankDetails.branch,
-                beneficiaryName: jsonData.bankDetails.beneficiaryName,
-              },
-              additionalNotes: jsonData.additionalNotes,
-            };
+              invoices.forEach((invoice: any) =>
+                store.dispatch(addInvoice(invoice))
+              );
+              return true;
+            } else {
+              console.error('File upload failed:', result.message);
+              return false;
+            }
+          } else {
+            // Handle other file types
+            const response = await fetch('/api/extract', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file: base64Data, mimeType }),
+            });
 
-            // Dispatch the action to store the full invoice details
-            store.dispatch(addInvoice(invoiceDetails));
-            toast.success('Files uploaded successfully!');
-            setFiles([]); // Clear the files
-            setDialogOpen(false); // Close the dialog
-          } catch (error) {
-            console.error('Error parsing JSON:', error);
+            const result = await response.json();
+
+            if (result.success) {
+              const responseData = result.data
+                .replace(/^```json|```$/g, '')
+                .trim();
+              const jsonData = JSON.parse(responseData);
+
+              // Format invoice details
+              const invoiceDetails = {
+                invoiceInformation: { ...jsonData.invoiceInformation },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                items: jsonData.items.map((item: any) => ({
+                  ...item,
+                })),
+                chargesAndTotals: { ...jsonData.chargesAndTotals },
+                bankDetails: { ...jsonData.bankDetails },
+                additionalNotes: jsonData.additionalNotes,
+              };
+
+              store.dispatch(addInvoice(invoiceDetails));
+              return true;
+            } else {
+              console.error('File upload failed:', result.message);
+              return false;
+            }
           }
-        } else {
-          console.error('File upload failed:', result.message);
-          toast.error('File upload failed. Please try again.');
-          setLoading(false);
-        }
+        })
+      );
+
+      // Check upload results
+      if (uploadResults.every((success) => success)) {
+        toast.success('All files uploaded successfully!');
+        setFiles([]); // Clear uploaded files
+        setDialogOpen(false); // Close the dialog
+      } else {
+        toast.error('Some files failed to upload. Please check and try again.');
       }
+    } catch (error) {
+      console.error('An error occurred during the upload:', error);
+      toast.error('An error occurred during the upload. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
