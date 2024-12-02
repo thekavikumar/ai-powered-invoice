@@ -54,10 +54,13 @@ export function UploadBtn() {
     const errorMsgs: string[] = [];
 
     newFiles.forEach((file) => {
+      const existingFile = files.find((f) => f.name === file.name);
       if (!SUPPORTED_FORMATS.includes(file.type)) {
         errorMsgs.push(`Unsupported format: ${file.name}`);
       } else if (file.size > MAX_FILE_SIZE) {
         errorMsgs.push(`File too large (max 5MB): ${file.name}`);
+      } else if (existingFile) {
+        errorMsgs.push(`File already uploaded: ${file.name}`);
       } else {
         validFiles.push(file);
       }
